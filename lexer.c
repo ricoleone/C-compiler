@@ -2,6 +2,7 @@
 #include "compiler.h"
 #include "helpers/vector.h"
 #include "helpers/buffer.h"
+#include <assert.h>
 
 #define LEX_GETC_IF(buffer, c, exp)      \
     for (c = peekc(); exp; c = peekc()) \
@@ -56,12 +57,12 @@ static struct token* lexer_last_token()
 
 static struct token *handle_whitespace()
 {
-    printf("handling last token\n");
+    //printf("handling last token\n");
     struct token *last_token = lexer_last_token();
     if (last_token)
     {
         last_token->whitespace = true;
-        printf("last_token is whitespace\n");
+        //printf("last_token is whitespace\n");
     }
     nextc();
     return read_next_token();
@@ -81,7 +82,7 @@ const char* read_number_str()
 unsigned long long read_number()
 {
     const char *s = read_number_str();
-    printf("read number string : %s\n", s);
+    //printf("read number string : %s\n", s);
     return atoll(s);
 }
 
@@ -97,6 +98,23 @@ struct token* token_make_number()
     return token_make_number_for_value(read_number());
 }
 
+struct token* token_make_string(char start_delim, char end_delim)
+{
+    struct buffer *buf = buffer_create();
+    assert(nextc() == start_delim);
+    char c = nextc();
+    for (; c != end_delim & c != EOF; c = nextc())
+    {
+        if(c == '\\')
+        {
+            // TO DO - handle an escaped char, e.g. "\n"
+            continue;
+        }
+        buffer_write(buf, c);
+    }
+    buffer_write(buf, 0x00);
+    return token_create(&(struct token){.type = TOKEN_STING, .sval = buffer_ptr(buf)});
+}
 struct  token* read_next_token()
 {
     struct token *token = NULL;
@@ -107,12 +125,16 @@ struct  token* read_next_token()
         NUMERIC_CASE:
             token = token_make_number();
             break;
+
+        case '"':
+            token = token_make_string('"', '"');
+            break;
         case ' ':
         case '\t':
             token = handle_whitespace();
             break;
         case EOF:
-            printf("EOF encountered, all done!\n");
+            //printf("EOF encountered, all done!\n");
             /* Lexical analysis of file completed */
             break;
     
