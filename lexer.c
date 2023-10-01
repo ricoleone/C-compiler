@@ -184,7 +184,7 @@ void read_op_flush_back_keep_first(struct buffer *buffer)
     int len = buffer->len;
     for (int i = len - 1; i >= 1; i--)
     {
-        if(data[i] == 0x00)
+        if (data[i] == 0x00)
         {
             continue;
         }
@@ -230,6 +230,15 @@ static void lex_new_expression()
     }
 }
 
+static void lex_finish_expression()
+{
+    lex_process->current_expresion_count--;
+    if (lex_process->current_expresion_count < 0)
+    {
+        compiler_error(lex_process->compiler, "Expression closed with no matching openning bracket\n");
+    }
+}
+
 bool lex_is_in_expression()
 {
     return lex_process->current_expresion_count > 0;
@@ -238,19 +247,30 @@ bool lex_is_in_expression()
 static struct token *token_make_operator_or_string()
 {
     char op = peekc();
-    if(op == '<')
+    if (op == '<')
     {
         struct token *last_token = lexer_last_token();
-        if(token_is_keyword(last_token, "inlcude"))
+        if (token_is_keyword(last_token, "inlcude"))
         {
             return token_make_string('<', '>');
         }
     }
     struct token *token = token_create(&(struct token){.type = TOKEN_OPERATOR, .sval = read_op()});
-    if(op == '(')
+    if (op == '(')
     {
         lex_new_expression();
     }
+    return token;
+}
+
+static struct token* token_make_symbol()
+{
+    char c = nextc();
+    if(c == ')')
+    {
+        lex_finish_expression();
+    }
+    struct token *token = token_create(&(struct token){.type = TOKEN_SYMBOL, .cval = c});
     return token;
 }
 
@@ -266,6 +286,9 @@ struct token *read_next_token()
         break;
     OPERATOR_CASE_EXCLUDING_DIVISION:
         token = token_make_operator_or_string();
+        break;
+    SYMBOL_CASE:
+        token = token_make_symbol();
         break;
     case '"':
         token = token_make_string('"', '"');
