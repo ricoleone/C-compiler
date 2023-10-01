@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+
+#define S_EQ(str1, str2) (str1 && str2 && (strcmp(str1, str2) == 0))
 
 #define NUMERIC_CASE \
     case '0':        \
@@ -16,6 +19,24 @@
     case '8':       \
     case '9'
 
+#define OPERATOR_CASE_EXCLUDING_DIVISION \
+    case '+':                            \
+    case '-':                            \
+    case '*':                            \
+    case '>':                            \
+    case '<':                            \
+    case '^':                            \
+    case '%':                            \
+    case '!':                            \
+    case '=':                            \
+    case '~':                            \
+    case '|':                            \
+    case '&':                            \
+    case '(':                            \
+    case '[':                            \
+    case ',':                            \
+    case '.':                            \
+    case '?'          
 
 struct pos
 {
@@ -38,7 +59,7 @@ enum
     TOKEN_OPERATOR,
     TOKEN_SYMBOL,
     TOKEN_NUMBER,
-    TOKEN_STING,
+    TOKEN_STRING,
     TOKEN_COMMENT,
     TOKEN_NEWLINE
 };
@@ -122,4 +143,6 @@ void *lex_process_private(struct lex_process *process);
 struct vector *lex_process_tokens(struct lex_process *process);
 
 int lex(struct lex_process *process);
+
+bool token_is_keyword(struct token *token, const char *value);
 #endif
