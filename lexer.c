@@ -236,7 +236,7 @@ static void lex_finish_expression()
     lex_process->current_expresion_count--;
     if (lex_process->current_expresion_count < 0)
     {
-        compiler_error(lex_process->compiler, "Expression closed with no matching openning bracket\n");
+        compiler_error(lex_process->compiler, "Error: Expression closed with no matching openning bracket\n");
     }
 }
 
@@ -279,6 +279,8 @@ bool is_keyword(const char *str)
            S_EQ(str, "extern") ||
            S_EQ(str, "restrict");
 }
+
+
 static struct token *token_make_operator_or_string()
 {
     char op = peekc();
@@ -296,6 +298,62 @@ static struct token *token_make_operator_or_string()
         lex_new_expression();
     }
     return token;
+}
+
+struct token *token_make_one_line_comment()
+{
+    struct buffer *buffer = buffer_create();
+    char c = 0;
+    LEX_GETC_IF(buffer, c, c != '\n' && c != EOF);
+    return token_create(&(struct token){.type = TOKEN_COMMENT, .sval = buffer_ptr(buffer)});
+}
+
+struct token *token_make_multiline_comment()
+{
+    struct buffer *buffer = buffer_create();
+    char c = 0;
+    while (1)
+    {
+        LEX_GETC_IF(buffer, c, c != '*' && c != EOF);
+        if (c == EOF)
+        {
+            compiler_error(lex_process->compiler, "Error: comment is not closed\n");
+        }
+        else if (c == '*')
+        {
+            nextc();
+            if (peekc() == '/')
+            {
+                nextc();
+                break;
+            }
+        }
+    }
+    return token_create(&(struct token){.type = TOKEN_COMMENT, .sval = buffer_ptr(buffer)});
+}
+
+struct token *handle_comment()
+{
+    char c = peekc();
+    if (c == '/')
+    {
+        nextc();
+        if (peekc() == '/')
+        {
+            nextc();
+            return token_make_one_line_comment();
+        }
+        else if (peekc() == '*')
+        {
+            nextc();
+            return token_make_multiline_comment();
+        }
+
+        pushc('/');
+        return token_make_operator_or_string();
+    }
+
+    return NULL;
 }
 
 static struct token *token_make_symbol()
@@ -345,6 +403,12 @@ struct token *read_next_token()
     struct token *token = NULL;
     char c = peekc();
     printf("Char read : %c, %x\n", c, c);
+
+    token = handle_comment();
+    if(token)
+    {
+        return token;
+    }
     switch (c)
     {
     NUMERIC_CASE:
@@ -375,7 +439,7 @@ struct token *read_next_token()
         token = read_special_token();
         if (!token)
         {
-            compiler_error(lex_process->compiler, "Unexpected Token\n");
+            compiler_error(lex_process->compiler, "Error: Unexpected Token\n");
         }
         // break;
     }
