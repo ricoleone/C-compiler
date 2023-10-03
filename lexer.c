@@ -245,7 +245,7 @@ bool lex_is_in_expression()
     return lex_process->current_expresion_count > 0;
 }
 
-bool is_keyword(const char* str)
+bool is_keyword(const char *str)
 {
     return S_EQ(str, "unsigned") ||
            S_EQ(str, "signed") ||
@@ -318,11 +318,11 @@ static struct token *token_make_identifier_or_keyword()
     buffer_write(buffer, 0x00);
 
     // TO DO, process key word
-    if(is_keyword(buffer_ptr(buffer)))
+    if (is_keyword(buffer_ptr(buffer)))
     {
         return token_create(&(struct token){.type = TOKEN_KEYWORD, .sval = buffer_ptr(buffer)});
     }
-    return token_create(&(struct token){.type=TOKEN_IDENTIFIER, .sval=buffer_ptr(buffer)});
+    return token_create(&(struct token){.type = TOKEN_IDENTIFIER, .sval = buffer_ptr(buffer)});
 }
 
 struct token *read_special_token()
@@ -333,6 +333,13 @@ struct token *read_special_token()
         return token_make_identifier_or_keyword();
     }
 }
+
+struct token* token_make_newline()
+{
+    nextc();
+    return token_create(&(struct token){.type = TOKEN_NEWLINE, .sval = NULL});
+}
+
 struct token *read_next_token()
 {
     struct token *token = NULL;
@@ -355,6 +362,9 @@ struct token *read_next_token()
     case ' ':
     case '\t':
         token = handle_whitespace();
+        break;
+    case '\n':
+        token = token_make_newline();
         break;
     case EOF:
         // printf("EOF encountered, all done!\n");
