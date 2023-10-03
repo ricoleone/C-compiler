@@ -3,3 +3,7 @@
 "Nothing but a hound dog" 
 (25+30) abdcd fefa45 fe00_abc 
 int long float
+// This is a oneline comment
+/*
+    This is a multiline comment
+*/
