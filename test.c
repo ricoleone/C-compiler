@@ -7,3 +7,6 @@ int long float
 /*
     This is a multiline comment
 */
+'q'
+"1"
+'\t'
