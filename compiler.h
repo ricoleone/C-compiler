@@ -74,6 +74,14 @@ enum
     TOKEN_NEWLINE
 };
 
+enum
+{
+    NUMBER_NORMAL,
+    NUMBER_LONG,
+    NUMBER_FLOAT,
+    NUMBER_DOUBLE
+};
+
 struct token
 {
     int type;
@@ -88,7 +96,13 @@ struct token
         unsigned long long llnum;
         void *any;
     };
-    //True is there is whitespace between tokens
+    
+    struct token_number
+    {
+        int type;
+    } num;
+
+    // True is there is whitespace between tokens
     bool whitespace;
     const char *between_brakets;
 };

@@ -102,9 +102,27 @@ unsigned long long read_number()
     return atoll(s);
 }
 
+int lexer_number_type(char c)
+{
+    int res = NUMBER_NORMAL;
+    if(c== 'L')
+    {
+        res = NUMBER_LONG;
+    }
+    else if(c=='f')
+    {
+        res = NUMBER_FLOAT;
+    }
+    return res;
+}
 struct token *token_make_number_for_value(unsigned long number)
 {
-    return token_create(&(struct token){.type = TOKEN_NUMBER, .llnum = number});
+    int number_type = lexer_number_type(peekc());
+    if(number_type != NUMBER_NORMAL)
+    {
+        nextc();
+    }
+    return token_create(&(struct token){.type = TOKEN_NUMBER, .llnum = number, .num.type=number_type});
 }
 
 struct token *token_make_number()
