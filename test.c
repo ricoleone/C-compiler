@@ -15,3 +15,5 @@ int long float
 0xDECAFBAD17
 0b1110011
 0b11111
+int x = 555L
+444f
