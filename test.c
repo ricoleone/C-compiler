@@ -10,3 +10,5 @@ int long float
 'q'
 "1"
 '\t'
+0xdeadbeef42
+0xDECAFBAD17
