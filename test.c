@@ -12,3 +12,5 @@ int long float
 '\t'
 0xdeadbeef42
 0xDECAFBAD17
+0b1110011
+0b11111
