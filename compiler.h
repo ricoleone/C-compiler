@@ -152,6 +152,66 @@ struct compile_process
     FILE *ofile;
 };
 
+enum
+{
+    NODE_EXPRESSION,
+    NODE_EXPRESSION_PARENTHESES,
+    N0DE_NUMBER,
+    N0DE_IDENTIFIER,
+    N0DE_STRING,
+    N0DE_VARIABLE,
+    NODE_VARIABLE_LIST,
+    NODE_FUNCTION,
+    NODE_BODY,
+    N0DE_STATEMENT_RETURN,
+    N0DE_STATEMENT_IF,
+    N0DE_STATEMENT_ELSE,
+    N0DE_STATEMENT_WHILE,
+    N0DE_STATEMENT_DO_WHILE,
+    N0DE_STATEMENT_FOR,
+    N0DE_STATEMENT_BREAK,
+    N0DE_STATEMENT_CONTINUE,
+    N0DE_STATEMENT_SWITCH,
+    N0DE_STATEMENT_CASE,
+    N0DE_STATEMENT_DEFAULT,
+    N0DE_STATEMENT_GOTO,
+    NODE_UNARY,
+    N0DE_TENARY,
+    N0DE_LABEL,
+    N0DE_STRUCT,
+    N0DE_UNION,
+    N0DE_BRACKET,
+    N0DE_CAST,
+    N0DE_BLANK
+};
+
+struct node
+{
+    int type;
+    int flags;
+
+    struct pos pos;
+
+    struct node_binded
+    {
+        //Pointer to the body node
+        struct node *owner;
+
+        //Pointer to the function containing this node (scope)
+        struct node *function;
+    } binded;
+
+    union
+    {
+        char cval;
+        const char *sval;
+        unsigned int inum;
+        unsigned long lnum;
+        unsigned long long llnum;
+    };
+
+} 
+
 int compile_file(const char *filename, const char *out_file, int flags);
 struct compile_process* compile_process_create(const char *filename, const char *filename_out, int flags);
 
