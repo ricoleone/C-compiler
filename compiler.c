@@ -50,7 +50,12 @@ int compile_file(const char* filename, const char* filename_out, int flags)
     }
 
     process->token_vec = lex_process->token_vec;
+
     // Parse
+    if (parse(process) != PARSE_ALL_OK)
+    {
+        return COMPILER_FAILED_WITH_ERRORS;
+    }
 
     // Generate code
 

@@ -16,7 +16,7 @@
     case '5':        \
     case '6':        \
     case '7':        \
-    case '8':       \
+    case '8':        \
     case '9'
 
 #define OPERATOR_CASE_EXCLUDING_DIVISION \
@@ -54,7 +54,6 @@ struct pos
     int col;
     const char *filename;
 };
-
 
 enum
 {
@@ -96,7 +95,7 @@ struct token
         unsigned long long llnum;
         void *any;
     };
-    
+
     struct token_number
     {
         int type;
@@ -130,7 +129,7 @@ struct lex_process
     struct buffer *parentheses_buffer;
     struct lex_process_functions *function;
     // holds private data
-    void *private;    
+    void *private;
 };
 enum
 {
@@ -140,7 +139,7 @@ enum
 
 struct compile_process
 {
-    int flags; //Compilation flags
+    int flags; // Compilation flags
     struct pos pos;
     struct compile_process_input_file
     {
@@ -149,7 +148,15 @@ struct compile_process
     } cfile;
 
     struct vector *token_vec;
+    struct vector *node_vec;
+    struct vector *node_tree_vec;
     FILE *ofile;
+};
+
+enum
+{
+    PARSE_ALL_OK,
+    PARSE_GENERAL_ERROR
 };
 
 enum
@@ -194,10 +201,10 @@ struct node
 
     struct node_binded
     {
-        //Pointer to the body node
+        // Pointer to the body node
         struct node *owner;
 
-        //Pointer to the function containing this node (scope)
+        // Pointer to the function containing this node (scope)
         struct node *function;
     } binded;
 
@@ -209,11 +216,10 @@ struct node
         unsigned long lnum;
         unsigned long long llnum;
     };
-
-} 
+};
 
 int compile_file(const char *filename, const char *out_file, int flags);
-struct compile_process* compile_process_create(const char *filename, const char *filename_out, int flags);
+struct compile_process *compile_process_create(const char *filename, const char *filename_out, int flags);
 
 char compile_process_next_char(struct lex_process *lex_process);
 char compile_process_peek_char(struct lex_process *lex_process);
@@ -230,9 +236,9 @@ struct vector *lex_process_tokens(struct lex_process *process);
 int lex(struct lex_process *process);
 
 /*
- * Builds tokens for input strings      
-*/
+ * Builds tokens for input strings
+ */
 struct lex_process *tokens_build_for_string(struct compile_process *compiler, const char *str);
-
+int parse(struct compile_process *process);
 bool token_is_keyword(struct token *token, const char *value);
 #endif
