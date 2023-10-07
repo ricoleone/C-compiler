@@ -163,33 +163,33 @@ enum
 {
     NODE_EXPRESSION,
     NODE_EXPRESSION_PARENTHESES,
-    N0DE_NUMBER,
-    N0DE_IDENTIFIER,
-    N0DE_STRING,
-    N0DE_VARIABLE,
+    NODE_NUMBER,
+    NODE_IDENTIFIER,
+    NODE_STRING,
+    NODE_VARIABLE,
     NODE_VARIABLE_LIST,
     NODE_FUNCTION,
     NODE_BODY,
-    N0DE_STATEMENT_RETURN,
-    N0DE_STATEMENT_IF,
-    N0DE_STATEMENT_ELSE,
-    N0DE_STATEMENT_WHILE,
-    N0DE_STATEMENT_DO_WHILE,
-    N0DE_STATEMENT_FOR,
-    N0DE_STATEMENT_BREAK,
-    N0DE_STATEMENT_CONTINUE,
-    N0DE_STATEMENT_SWITCH,
-    N0DE_STATEMENT_CASE,
-    N0DE_STATEMENT_DEFAULT,
-    N0DE_STATEMENT_GOTO,
+    NODE_STATEMENT_RETURN,
+    NODE_STATEMENT_IF,
+    NODE_STATEMENT_ELSE,
+    NODE_STATEMENT_WHILE,
+    NODE_STATEMENT_DO_WHILE,
+    NODE_STATEMENT_FOR,
+    NODE_STATEMENT_BREAK,
+    NODE_STATEMENT_CONTINUE,
+    NODE_STATEMENT_SWITCH,
+    NODE_STATEMENT_CASE,
+    NODE_STATEMENT_DEFAULT,
+    NODE_STATEMENT_GOTO,
     NODE_UNARY,
-    N0DE_TENARY,
-    N0DE_LABEL,
-    N0DE_STRUCT,
-    N0DE_UNION,
-    N0DE_BRACKET,
-    N0DE_CAST,
-    N0DE_BLANK
+    NODE_TENARY,
+    NODE_LABEL,
+    NODE_STRUCT,
+    NODE_UNION,
+    NODE_BRACKET,
+    NODE_CAST,
+    NODE_BLANK
 };
 
 struct node
@@ -241,4 +241,14 @@ int lex(struct lex_process *process);
 struct lex_process *tokens_build_for_string(struct compile_process *compiler, const char *str);
 int parse(struct compile_process *process);
 bool token_is_keyword(struct token *token, const char *value);
+bool token_is_nl_or_newline_or_comment_or_separator(struct token *token);
+bool token_is_symbol(struct token *token, char c);
+
+struct node *node_create(struct node *_node);
+void node_set_vector(struct vector *vec, struct vector *root_vec);
+void node_push(struct node *node);
+struct node *node_peek_or_null();
+struct node *node_peek();
+struct node *node_pop();
+
 #endif
