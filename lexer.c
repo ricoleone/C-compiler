@@ -254,6 +254,12 @@ const char *read_op()
             ptr[1] = 0x00; // put null terminator after single op char
         }
     }
+    else if (!op_valid(ptr))
+    {
+        compiler_error(lex_process->compiler, "The operator %s is not valid\n", ptr);
+    }
+
+    return ptr;
 }
 
 static void lex_new_expression()
