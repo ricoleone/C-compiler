@@ -7,7 +7,7 @@ bool token_is_keyword(struct token* token, const char* value)
 
 bool token_is_symbol(struct token* token, char c)
 {
-    return token->type == TOKEN_SYMBOL &&token->cval == c;
+    return token->type == TOKEN_SYMBOL && token->cval == c;
 }
 
 bool token_is_nl_or_comment_or_newline_separator(struct token *token)
