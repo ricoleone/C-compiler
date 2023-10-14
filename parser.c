@@ -4,6 +4,8 @@
 
 static struct compile_process *current_process;
 static struct token *parser_last_token;
+static struct token *token_peek_next();
+void parse_single_token_to_node();
 extern struct expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_GROUPS];
 
 struct history
@@ -24,6 +26,12 @@ struct history *history_down(struct history *history, int flags)
     memcpy(new_history, history, sizeof(struct history));
     new_history->flags = flags;
     return new_history;
+}
+
+void parse_identifier(struct history * history)
+{
+    assert(token_peek_next()->type == NODE_IDENTIFIER);
+    parse_single_token_to_node();
 }
 
 int parse_expressionable_single(struct history *history);
@@ -204,6 +212,9 @@ int parse_expressionable_single(struct history *history)
         //printf("parse_expresionable_single: NUMBER token parsed\n");
         parse_single_token_to_node();
         res = 0;
+        break;
+    case TOKEN_IDENTIFIER:
+        parse_identifier(history);
         break;
     case TOKEN_OPERATOR:
         //printf("parse_expresionable_single: OPERATOR token parsed\n");
