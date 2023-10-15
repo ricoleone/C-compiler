@@ -233,6 +233,69 @@ struct node
     };
 };
 
+enum
+{
+    DATATYPE_FLAG_IS_SIGNED = 0b00000001,
+    DATATYPE_FLAG_IS_STATIC = 0b00000010,
+    DATATYPE_FLAG_IS_CONST = 0b00000100,
+    DATATYPE_FLAG_IS_POINTER = 0b00001000,
+    DATATYPE_FLAG_IS_ARRAY = 0b00010000,
+    DATATYPE_FLAG_IS_EXTERN = 0b00100000,
+    DATATYPE_FLAG_IS_RESTRICT = 0b01000000,
+    DATATYPE_FLAG_IGNORE_TYPE_CHECKING = 0b10000000,
+    DATATYPE_FLAG_IS_SECONDARY = 0b100000000,
+    DATATYPE_FLAG_STRUCT_UNION_NO_NAME = 0b1000000000,
+    DATATYPE_FLAG_IS_LITERAL = 0b10000000000
+};
+enum
+{
+    DATA_TYPE_VOID,
+    DATA_TYPE_CHAR,
+    DATA_TYPE_SHORT,
+    DATA_TYPE_INTEGER,
+    DATA_TYPE_LONG,
+    DATA_TYPE_FLOAT,
+    DATA_TYPE_DOUBLE,
+    DATA_TYPE_STRUCT,
+    DATA_TYPE_UNION,
+    DATA_TYPE_UNKNOWN
+};
+
+struct datatype
+{
+    int flags;
+    // int, long, short ... from enum
+    int type;
+    // long int or short int, where int is secondary
+    struct datatype *secondary;
+    // int, long, short as string
+    const char *type_str;
+    size_t size;
+    int pointer_depth;
+
+    union
+    {
+        struct node *node;
+        struct node *union_node;
+    };
+};
+
+enum
+{
+    DATA_TYPE_EXPECT_PRIMITIVE,
+    DATA_TYPE_EXPECT_UNION,
+    DATA_TYPE_EXPECT_STRUCT
+};
+
+enum
+{
+    DATA_SIZE_ZERO = 0,
+    DATA_SIZE_BYTE = 1,
+    DATA_SIZE_WORD = 2,
+    DATA_SIZE_DWORD = 4,
+    DATA_SIZE_DDWORD = 8
+};
+
 int compile_file(const char *filename, const char *out_file, int flags);
 struct compile_process *compile_process_create(const char *filename, const char *filename_out, int flags);
 
@@ -258,6 +321,10 @@ int parse(struct compile_process *process);
 bool token_is_keyword(struct token *token, const char *value);
 bool token_is_nl_or_comment_or_newline_separator(struct token *token);
 bool token_is_symbol(struct token *token, char c);
+bool keyword_is_datatype(const char *str);
+bool token_is_primitive_keyword(struct token *token);
+bool datatype_is_struct_or_union_for_name(const char *name);
+bool token_is_operator(struct token *token, const char *val);
 
 struct node *node_create(struct node *_node);
 void make_exp_node(struct node *left_node, struct node *right_node, const char *op);
