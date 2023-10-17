@@ -62,10 +62,18 @@ static struct token *token_peek_next()
     return vector_peek_no_increment(current_process->token_vec);
 }
 
-static bool token_next_is_operator(const char* op)
+static bool token_next_is_operator(const char *op)
 {
     struct token *token = token_peek_next();
     return token_is_operator(token, op);
+}
+static void expect_sym(char c)
+{
+    struct token *next_token = token_next();
+    if (!next_token || next_token->type != TOKEN_SYMBOL || next_token->cval != c)
+    {
+        compiler_error(current_process, "Expected symbol %c \n", c);
+    }
 }
 
 void parse_single_token_to_node()
@@ -254,21 +262,21 @@ void parser_get_datatype_tokens(struct token **datatype_token, struct token **da
 {
     *datatype_token = token_next();
     struct token *next_token = token_peek_next();
-    if(token_is_primitive_keyword(next_token))
+    if (token_is_primitive_keyword(next_token))
     {
         *datatype_secondary_token = next_token;
         token_next();
     }
 }
 
-int parser_get_datatype_expected_for_type_string(const char* str)
+int parser_get_datatype_expected_for_type_string(const char *str)
 {
     int type = DATA_TYPE_EXPECT_PRIMITIVE;
-    if(S_EQ(str, "union"))
+    if (S_EQ(str, "union"))
     {
         type = DATA_TYPE_EXPECT_UNION;
     }
-    else if(S_EQ(str, "struct"))
+    else if (S_EQ(str, "struct"))
     {
         type = DATA_TYPE_EXPECT_STRUCT;
     }
@@ -297,7 +305,7 @@ struct token *parser_build_random_type_name()
 int parser_get_pointer_depth()
 {
     int depth = 0;
-    while(token_next_is_operator("*"))
+    while (token_next_is_operator("*"))
     {
         depth++;
         token_next();
@@ -424,7 +432,7 @@ void parse_datatype_type(struct datatype *dtype)
     if (datatype_is_struct_or_union_for_name(datatype_token->sval))
     {
         // handle "struct abc", for declaring a struct type
-        if(token_peek_next()->type == TOKEN_IDENTIFIER)
+        if (token_peek_next()->type == TOKEN_IDENTIFIER)
         {
             datatype_token = token_next();
         }
@@ -449,16 +457,15 @@ void parse_datatype(struct datatype *dtype)
     parse_datatype_modifiers(dtype);
 }
 
-
-bool parser_is_int_valid_after_datatype(struct datatype* dtype)
+bool parser_is_int_valid_after_datatype(struct datatype *dtype)
 {
     return dtype->type == DATA_TYPE_LONG || dtype->type == DATA_TYPE_FLOAT || dtype->type == DATA_TYPE_DOUBLE;
 }
 
-void parser_ignore_int(struct datatype* dtype)
+void parser_ignore_int(struct datatype *dtype)
 {
     // sizeof(long int) == sizeof(long), so int can be ignored
-    if(!token_is_keyword(token_peek_next(), "int"))
+    if (!token_is_keyword(token_peek_next(), "int"))
     {
         return;
     }
@@ -472,6 +479,59 @@ void parser_ignore_int(struct datatype* dtype)
     token_next();
 }
 
+void parse_expressionable_root(struct history *history)
+{
+    parse_expressionable(history);
+    struct node *result_node = node_pop();
+    node_push(result_node);
+}
+
+void make_variable_node(struct datatype *dtype, struct token *name_token, struct node *value_node)
+{
+    const char *name_str = NULL;
+    if (name_token)
+    {
+        name_str = name_token->sval;
+    }
+    node_create(&(struct node){.type = NODE_VARIABLE, .var.name = name_str, .var.type = *dtype, .var.val = value_node});
+}
+
+void make_variable_node_and_register(struct history *history, struct datatype *dtype, struct token *name_token, struct node *value_node)
+{
+    make_variable_node(dtype, name_token, value_node);
+    struct node *var_node = node_pop();
+
+    #warning "Remember to calculate scope offsets and push to the scope"
+    // Calculate the scope offset
+    // Push the variable node to the scope
+
+    node_push(var_node);
+}
+
+void make_variable_list_node(struct vector *var_list_vec)
+{
+    node_create(&(struct node){.type = NODE_VARIABLE_LIST, .var_list.list = var_list_vec});
+}
+
+void parse_variable(struct datatype *dtype, struct token *name_token, struct history *history)
+{
+    struct node *value_node = NULL;
+    // int a; int b[30];
+    // Check for array brackets.
+    #warning "Don't forget to check for array brackets"
+
+    // int c = 50;
+    if (token_next_is_operator("="))
+    {
+        // Ignore the = operator
+        token_next();
+        parse_expressionable_root(history);
+        value_node = node_pop();
+    }
+
+    make_variable_node_and_register(history, dtype, name_token, value_node);
+}
+
 void parse_variable_function_or_struct_union(struct history *history)
 {
     struct datatype dtype;
@@ -479,6 +539,37 @@ void parse_variable_function_or_struct_union(struct history *history)
 
     // Ignore int when not needed, i.e., long int -> long
     parser_ignore_int(&dtype);
+    
+    struct token *name_token = token_next();
+    if (name_token->type != TOKEN_IDENTIFIER)
+    {
+        compiler_error(current_process, "Invalid variable name\n");
+    }
+
+    // int abc()
+    // Check if this is a function declaration
+
+    parse_variable(&dtype, name_token, history);
+    if (token_is_operator(token_peek_next(), ","))
+    {
+        struct vector *var_list = vector_create(sizeof(struct node *));
+        // Pop off the original variable
+        struct node *var_node = node_pop();
+        vector_push(var_list, &var_node);
+        while (token_is_operator(token_peek_next(), ","))
+        {
+            // Get rid of the comma
+            token_next();
+            name_token = token_next();
+            parse_variable(&dtype, name_token, history);
+            var_node = node_pop();
+            vector_push(var_list, &var_node);
+        }
+
+        make_variable_list_node(var_list);
+    }
+
+    expect_sym(';');
 }
 
 void parse_keyword(struct history *history)
@@ -534,6 +625,8 @@ void parse_keyword_for_global()
 {
     parse_keyword(history_begin(0));
     struct node *node = node_pop();
+
+    node_push(node);
 }
 int parse_next()
 {
@@ -550,10 +643,10 @@ int parse_next()
     case TOKEN_STRING:
         parse_expressionable(history_begin(0));
         break;
-        case TOKEN_KEYWORD:
-            parse_keyword_for_global();
-            break;
-        }
+    case TOKEN_KEYWORD:
+        parse_keyword_for_global();
+        break;
+    }
     return 0;
 }
 

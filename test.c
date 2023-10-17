@@ -1,1 +1,1 @@
-unsigned int
+int x, e, d, ee, ii, oo, ooo = 50;
