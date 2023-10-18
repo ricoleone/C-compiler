@@ -1,1 +1,4 @@
-int x[4][4];
+struct abc
+{
+    
+};
