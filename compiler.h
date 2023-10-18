@@ -236,6 +236,12 @@ enum
     NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
 };
 
+
+struct array_brackets
+{
+    struct vector *n_brackets;
+};
+
 struct node;
 
 struct datatype
@@ -247,6 +253,7 @@ struct datatype
     struct datatype *secondary;
     // int, long, short as string
     const char *type_str;
+    // size of the primative data type, e.g. sizeof(int) = 4 
     size_t size;
     int pointer_depth;
 
@@ -255,6 +262,12 @@ struct datatype
         struct node *node;
         struct node *union_node;
     };
+    struct array
+    {
+        struct array_brackets *brackets;
+        // size of the sum of all array data elements
+        size_t size;
+    } array;
 };
 
 struct node
@@ -288,11 +301,18 @@ struct node
             const char *name;
             struct node *val;
         } var;
-        struct varlist
+
+        struct var_list
         {
             // A list of struct node* variables.
             struct vector *list;
         } var_list;
+
+        struct bracket
+        {
+            // data node between the array brackets
+            struct node *inner;
+        } bracket;
     };
 
     union
@@ -383,6 +403,8 @@ bool token_is_operator(struct token *token, const char *val);
 
 struct node *node_create(struct node *_node);
 void make_exp_node(struct node *left_node, struct node *right_node, const char *op);
+void make_bracket_node(struct node *node);
+
 void node_set_vector(struct vector *vec, struct vector *root_vec);
 void node_push(struct node *node);
 struct node *node_peek_or_null();
@@ -391,6 +413,14 @@ struct node *node_pop();
 
 bool node_is_expressionable(struct node *node);
 struct node *node_peek_expressionable_or_null();
+
+struct array_brackets *array_brackets_new();
+void array_brackets_free(struct array_brackets *brackets);
+void array_brackets_add(struct array_brackets *brackets, struct node *bracket_node);
+struct vector *array_brackets_node_vector(struct array_brackets *brackets);
+size_t array_brackets_calculate_size_from_index(struct datatype *dtype, struct array_brackets *brackets, int index);
+size_t array_brackets_calculate_size(struct datatype *dtype, struct array_brackets *brackets);
+int array_total_indexes(struct datatype *dtype);
 
 #define TOTAL_OPERATOR_GROUPS 14
 #define MAX_OPERATORS_IN_GROUP 12
