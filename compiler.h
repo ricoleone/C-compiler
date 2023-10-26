@@ -259,9 +259,10 @@ struct datatype
 
     union
     {
-        struct node *node;
+        struct node *struct_node;
         struct node *union_node;
     };
+
     struct array
     {
         struct array_brackets *brackets;
@@ -440,6 +441,7 @@ struct node *node_pop();
 
 bool node_is_expressionable(struct node *node);
 struct node *node_peek_expressionable_or_null();
+bool node_is_struct_or_union_variable(struct node *node);
 
 struct array_brackets *array_brackets_new();
 void array_brackets_free(struct array_brackets *brackets);
@@ -449,6 +451,7 @@ size_t array_brackets_calculate_size_from_index(struct datatype *dtype, struct a
 size_t array_brackets_calculate_size(struct datatype *dtype, struct array_brackets *brackets);
 int array_total_indexes(struct datatype *dtype);
 bool datatype_is_struct_or_union(struct datatype *dtype);
+struct node *variable_struct_or_union_body_node(struct node *node);
 
 size_t variable_size(struct node *var_node);
 size_t variable_size_for_list(struct node *var_list_node);
