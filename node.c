@@ -6,35 +6,35 @@ struct vector *node_vector = NULL;
 struct vector *node_vector_root = NULL;
 struct node *parser_current_body = NULL;
 
-void node_set_vector(struct vector* vec, struct vector* root_vec)
+void node_set_vector(struct vector *vec, struct vector *root_vec)
 {
     node_vector = vec;
     node_vector_root = root_vec;
 }
 
-void node_push(struct node* node)
+void node_push(struct node *node)
 {
     vector_push(node_vector, &node);
 }
 
-struct node* node_peek_or_null()
+struct node *node_peek_or_null()
 {
     return vector_back_ptr_or_null(node_vector);
 }
 
-struct node* node_peek()
+struct node *node_peek()
 {
     return *(struct node **)(vector_back(node_vector));
 }
 
-struct node* node_pop()
+struct node *node_pop()
 {
     struct node *last_node = vector_back_ptr(node_vector);
     struct node *last_node_root = vector_empty(node_vector) ? NULL : vector_back_ptr_or_null(node_vector_root);
 
     vector_pop(node_vector);
 
-    if(last_node == last_node_root)
+    if (last_node == last_node_root)
     {
         vector_pop(node_vector_root);
     }
@@ -42,18 +42,18 @@ struct node* node_pop()
     return last_node;
 }
 
-bool node_is_expressionable(struct node* node)
+bool node_is_expressionable(struct node *node)
 {
     return node->type == NODE_EXPRESSION || node->type == NODE_EXPRESSION_PARENTHESES || node->type == NODE_UNARY || node->type == NODE_IDENTIFIER || node->type == NODE_NUMBER || node->type == NODE_STRING;
 }
 
-struct node* node_peek_expressionable_or_null() 
+struct node *node_peek_expressionable_or_null()
 {
     struct node *last_node = node_peek_or_null();
     return node_is_expressionable(last_node) ? last_node : NULL;
 }
 
-void make_exp_node(struct node* left_node, struct node* right_node, const char* op)
+void make_exp_node(struct node *left_node, struct node *right_node, const char *op)
 {
     assert(left_node);
     assert(right_node);
@@ -72,18 +72,43 @@ void make_body_node(struct vector *body_vec, size_t size, bool padded, struct no
 
 struct node *node_create(struct node *_node)
 {
-    struct node* node = malloc(sizeof(struct node));
+    struct node *node = malloc(sizeof(struct node));
     memcpy(node, _node, sizeof(struct node));
-    #warning "Set the binded owner and binded function here"
+#warning "Set the binded owner and binded function here"
     node_push(node);
     return node;
 }
 
-bool node_is_struct_or_union_variable(struct node* node)
+bool node_is_struct_or_union_variable(struct node *node)
 {
     if (node->type != NODE_VARIABLE)
     {
         return false;
     }
     return datatype_is_struct_or_union(&node->var.type);
+}
+
+struct node *variable_node(struct node *node)
+{
+    struct node *var_node = NULL;
+    switch (node->type)
+    {
+    case NODE_VARIABLE:
+        var_node = node;
+        break;
+    case NODE_STRUCT:
+        var_node = node->_struct.var;
+        break;
+    case NODE_UNION:
+        // var_node = node->_union.var;
+        assert(1 == 0 && "Unions not yet supported\n");
+        break;
+    }
+    return variable_node;
+}
+
+bool variable_node_is_primative(struct node* node)
+{
+    assert(node->type == NODE_VARIABLE);
+    return datatype_is_primative(&node->var.type);
 }
