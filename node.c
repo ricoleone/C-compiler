@@ -110,5 +110,14 @@ struct node *variable_node(struct node *node)
 bool variable_node_is_primative(struct node* node)
 {
     assert(node->type == NODE_VARIABLE);
-    return datatype_is_primative(&node->var.type);
+    return data_type_is_primative(&node->var.type);
+}
+
+struct node* variable_node_or_list(struct node* node)
+{
+    if(node->type == NODE_VARIABLE_LIST)
+    {
+        return node;
+    }
+    return variable_node(node);
 }
