@@ -1,4 +1,4 @@
-struct abc
+struct xyz
 {
     int a;
     int b;

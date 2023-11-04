@@ -233,9 +233,10 @@ enum
 
 enum
 {
-    NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
+    NODE_FLAG_INSIDE_EXPRESSION = 0b00000001,
+    NODE_FLAG_IS_FORWARD_DECLARATION =0b00000010,
+    NODE_FLAG_HAS_VARIABLE_COMBINED = 0b00000100,
 };
-
 
 struct array_brackets
 {
@@ -432,9 +433,15 @@ bool data_type_is_primative(struct datatype *dtype);
 bool token_is_operator(struct token *token, const char *val);
 
 struct node *node_create(struct node *_node);
+
+struct node *node_from_sym(struct symbol *sym);
+struct node *node_from_symbol(struct compile_process *current_process, const char *name);
+struct node *struct_node_for_name(struct compile_process *current_process, const char *name);
+
 void make_exp_node(struct node *left_node, struct node *right_node, const char *op);
 void make_bracket_node(struct node *node);
 void make_body_node(struct vector *body_vec, size_t size, bool padded, struct node *largest_var_node);
+void make_struct_node(const char *name, struct node *body_node);
 
 void node_set_vector(struct vector *vec, struct vector *root_vec);
 void node_push(struct node *node);
@@ -481,14 +488,21 @@ void scope_push(struct compile_process *process, void *ptr, size_t elem_size);
 void scope_finish(struct compile_process *process);
 struct scope *scope_current(struct compile_process *process);
 
+void symresolver_initialize(struct compile_process *process);
+void symresolver_new_table(struct compile_process *process);
+void symresolver_end_table(struct compile_process *process);
+
+void symresolver_build_for_node(struct compile_process *process, struct node *node);
+struct symbol *symresolver_get_symbol(struct compile_process *process, const char *name);
+struct symbol *symresolver_get_symbol_for_native_function(struct compile_process *process, const char *name);
+
 #define TOTAL_OPERATOR_GROUPS 14
 #define MAX_OPERATORS_IN_GROUP 12
 
-enum
-{
-    ASSOCIATIVITY_LEFT_TO_RIGHT,
-    ASSOCIATIVITY_RIGHT_TO_LEFT
-};
+    enum {
+        ASSOCIATIVITY_LEFT_TO_RIGHT,
+        ASSOCIATIVITY_RIGHT_TO_LEFT
+    };
 
 struct expressionable_op_precedence_group
 {
