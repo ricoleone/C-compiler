@@ -72,12 +72,15 @@ struct history *history_down(struct history *history, int flags)
 
 void parse_identifier(struct history *history)
 {
-    assert(token_peek_next()->type == NODE_IDENTIFIER);
+    assert(token_peek_next()->type == TOKEN_IDENTIFIER);
     parse_single_token_to_node();
 }
 
 int parse_expressionable_single(struct history *history);
 void parse_expressionable(struct history *history);
+void parse_body(size_t *variable_size, struct history *history);
+void parse_keyword(struct history *history);
+struct vector *parse_function_arguments(struct history *history);
 
 void parser_scope_new()
 {
@@ -614,8 +617,12 @@ void parser_scope_offset_for_stack(struct node *node, struct history *history)
     int offset = -variable_size(node);
     if (upward_stack)
     {
-#warning "Upward Stack not handled yet"
-        compiler_error(current_process, "Functions not yet implemented\n");
+        size_t stack_addition = function_node_argument_stack_addition(parser_current_function);
+        offset = stack_addition;
+        if (last_entity)
+        {
+            offset = datatype_size(&variable_node(last_entity->node)->var.type);
+        }
     }
     if (last_entity)
     {
@@ -737,7 +744,7 @@ void parse_variable(struct datatype *dtype, struct token *name_token, struct his
     make_variable_node_and_register(history, dtype, name_token, value_node);
 }
 
-void parse_body(size_t *variable_size, struct history *history);
+
 
 void parse_function_body(struct history *history)
 {
@@ -757,7 +764,7 @@ void parse_function(struct datatype *ret_type, struct token *name_token, struct 
     }
 
     expect_op("(");
-#warning "Parse the functions arguments"
+    arguments_vector = parse_function_arguments(history_begin(0));
     expect_sym(')');
 
     function_node->func.args.vector = arguments_vector;
@@ -795,7 +802,7 @@ void parse_symbol()
     }
 }
 
-void parse_keyword(struct history *history);
+
 
 void parse_statement(struct history *history)
 {
@@ -1053,6 +1060,56 @@ void parse_struct_or_union(struct datatype *dtype)
     }
 }
 
+void token_read_dots(size_t amount)
+{
+    for (size_t i = 0; i < amount; i++)
+    {
+        expect_op(".");
+    }
+}
+
+void parse_variable_full(struct history *history)
+{
+    struct datatype dtype;
+    parse_datatype(&dtype);
+
+    struct token *name_token = NULL;
+    if (token_peek_next()->type == TOKEN_IDENTIFIER)
+    {
+        name_token = token_next();
+    }
+    parse_variable(&dtype, name_token, history);
+}
+
+struct vector *parse_function_arguments(struct history *history)
+{
+    parser_scope_new();
+    struct vector *arguments_vec = vector_create(sizeof(struct node *));
+    while (!token_next_is_symbol(')'))
+    {
+        if (token_next_is_operator("."))
+        {
+            token_read_dots(3);
+            parser_scope_finish();
+            return arguments_vec;
+        }
+
+        parse_variable_full(history_down(history, history->flags | HISTORY_FLAG_IS_UPWARD_STACK));
+        struct node *argument_node = node_pop();
+        vector_push(arguments_vec, &argument_node);
+
+        if (!token_next_is_operator(","))
+        {
+            break;
+        }
+
+        // Pop off the comma.
+        token_next();
+    }
+
+    parser_scope_finish();
+    return arguments_vec;
+}
 void parse_variable_function_or_struct_union(struct history *history)
 {
     struct datatype dtype;
@@ -1137,6 +1194,7 @@ int parse_expressionable_single(struct history *history)
         break;
     case TOKEN_IDENTIFIER:
         parse_identifier(history);
+        res = 0;
         break;
     case TOKEN_OPERATOR:
         // printf("parse_expresionable_single: OPERATOR token parsed\n");
