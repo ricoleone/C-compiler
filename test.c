@@ -1,8 +1,4 @@
-
-struct dog
+int main()
 {
-    int a;
-    int b;
-};
-
-struct dog cat;
+    int foo;
+}
