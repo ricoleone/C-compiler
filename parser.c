@@ -111,7 +111,11 @@ static struct token *token_next()
 {
     struct token *next_token = vector_peek_no_increment(current_process->token_vec);
     parser_ignore_nl_or_comment(next_token);
-    current_process->pos = next_token->pos;
+    if(next_token)
+    {
+        current_process->pos = next_token->pos;
+    }
+    
     parser_last_token = next_token;
     return vector_peek(current_process->token_vec);
 }
@@ -663,8 +667,6 @@ void make_variable_node_and_register(struct history *history, struct datatype *d
 {
     make_variable_node(dtype, name_token, value_node);
     struct node *var_node = node_pop();
-
-#warning "Remember to calculate scope offsets and push to the scope"
     // Calculate the scope offset
     parser_scope_offset(var_node, history);
     // Push the variable node to the scope
@@ -958,7 +960,7 @@ void parse_struct_no_new_scope(struct datatype *dtype, bool is_forward_declarati
         dtype->size = body_node->body.size;
     }
     dtype->struct_node = struct_node;
-    if(token_peek_next()->type == TOKEN_IDENTIFIER)
+    if (token_is_identifier(token_peek_next()))
     {
         struct token *var_name = token_next();
         struct_node->flags |= NODE_FLAG_HAS_VARIABLE_COMBINED;
