@@ -475,6 +475,7 @@ void make_exp_node(struct node *left_node, struct node *right_node, const char *
 void make_bracket_node(struct node *node);
 void make_body_node(struct vector *body_vec, size_t size, bool padded, struct node *largest_var_node);
 void make_struct_node(const char *name, struct node *body_node);
+void make_function_node(struct datatype *ret_type, const char *name, struct vector *arguments, struct node *body_node);
 
 void node_set_vector(struct vector *vec, struct vector *root_vec);
 void node_push(struct node *node);
