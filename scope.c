@@ -81,6 +81,7 @@ void *scope_last_entity_at_scope(struct scope *scope)
 
 void *scope_last_entity_from_scope_stop_at(struct scope *scope, struct scope *stop_scope)
 {
+    printf("INSIDE: scope_last_entity_from_scope_stop_at\n");
     if (scope == stop_scope)
     {
         return NULL;

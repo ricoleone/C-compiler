@@ -70,6 +70,50 @@ void make_body_node(struct vector *body_vec, size_t size, bool padded, struct no
     node_create(&(struct node){.type = NODE_BODY, .body.statements = body_vec, .body.size = size, .body.padded = padded, .body.largest_var_node = largest_var_node});
 }
 
+void make_struct_node(const char* name, struct node* body_node)
+{
+    printf("INSIDE: make_struct_node\n");
+    int flags = 0;
+    if(!body_node)
+    {
+        flags |= NODE_FLAG_IS_FORWARD_DECLARATION;
+    }
+    node_create(&(struct node){.type = NODE_STRUCT, ._struct.body_n = body_node, ._struct.name = name, .flags = flags});
+}
+
+struct node* node_from_sym(struct symbol* sym)
+{
+    if(sym->type != SYMBOL_TYPE_NODE)
+    {
+        return NULL;
+    }
+    return sym->data;
+}
+
+struct node* node_from_symbol(struct compile_process* current_process, const char* name)
+{
+    struct symbol *sym = symresolver_get_symbol(current_process, name);
+    if(!sym)
+    {
+        return NULL;
+    }
+    node_from_sym(sym);
+}
+
+struct node* struct_node_for_name(struct compile_process* current_process, const char* name)
+{
+    struct node *node = node_from_symbol(current_process, name);
+    if(!node)
+    {
+        return NULL;
+    }
+    if(node->type != NODE_STRUCT)
+    {
+        return NULL;
+    }
+    return node;
+}
+
 struct node *node_create(struct node *_node)
 {
     struct node *node = malloc(sizeof(struct node));
@@ -90,6 +134,7 @@ bool node_is_struct_or_union_variable(struct node *node)
 
 struct node *variable_node(struct node *node)
 {
+    printf("INSIDE: variable_node\n");
     struct node *var_node = NULL;
     switch (node->type)
     {
@@ -97,6 +142,7 @@ struct node *variable_node(struct node *node)
         var_node = node;
         break;
     case NODE_STRUCT:
+        printf("node_type is STRUCT\n");
         var_node = node->_struct.var;
         break;
     case NODE_UNION:
@@ -104,7 +150,7 @@ struct node *variable_node(struct node *node)
         assert(1 == 0 && "Unions not yet supported\n");
         break;
     }
-    return variable_node;
+    return var_node;
 }
 
 bool variable_node_is_primative(struct node* node)
