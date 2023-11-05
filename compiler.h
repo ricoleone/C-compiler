@@ -297,6 +297,12 @@ struct node
             const char *op;
         } exp;
 
+        struct parenthesis
+        {
+            // The expression inside the parenthesis node.
+            struct node *exp;
+        } parenthesis;
+
         struct var
         {
             struct datatype type;
@@ -470,6 +476,9 @@ struct node *node_create(struct node *_node);
 struct node *node_from_sym(struct symbol *sym);
 struct node *node_from_symbol(struct compile_process *current_process, const char *name);
 struct node *struct_node_for_name(struct compile_process *current_process, const char *name);
+
+bool node_is_expression_or_parentheses(struct node *node);
+bool node_is_value_type(struct node *node);
 
 void make_exp_node(struct node *left_node, struct node *right_node, const char *op);
 void make_bracket_node(struct node *node);
