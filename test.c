@@ -1,4 +1,5 @@
 int main(int z, int q, ... )
 {
-    int foo;
+    int x;
+    x = (50 + 20);
 }

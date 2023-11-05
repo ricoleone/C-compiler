@@ -62,6 +62,11 @@ void make_exp_node(struct node *left_node, struct node *right_node, const char *
     node_create(&(struct node){.type = NODE_EXPRESSION, .exp.left = left_node, .exp.right = right_node, .exp.op = op});
 }
 
+void make_exp_parentheses_node(struct node *exp_node)
+{
+    node_create(&(struct node){.type = NODE_EXPRESSION_PARENTHESES, .parenthesis.exp = exp_node});
+}
+
 void make_bracket_node(struct node *node)
 {
     node_create(&(struct node){.type = NODE_BRACKET, .bracket.inner = node});
@@ -183,4 +188,14 @@ size_t function_node_argument_stack_addition(struct node *node)
 {
     assert(node->type == NODE_FUNCTION);
     return node->func.args.stack_addition;
+}
+
+bool node_is_expression_or_parentheses(struct node *node)
+{
+    return node->type == NODE_EXPRESSION_PARENTHESES || node->type == NODE_EXPRESSION;
+}
+
+bool node_is_value_type(struct node *node)
+{
+    return node_is_expression_or_parentheses(node) || node->type == NODE_IDENTIFIER || node->type == NODE_NUMBER || node->type == NODE_UNARY || node->type == NODE_TENARY || node->type == NODE_STRING;
 }
