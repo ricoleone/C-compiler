@@ -382,6 +382,12 @@ struct node
                 // if(COND) {} else {}
                 struct node *next;
             } if_stmt;
+
+            struct else_stmt
+            {
+                struct node *body_node;
+            } else_stmt;
+
         } stmt;
     };
 
@@ -494,11 +500,13 @@ bool node_is_expression_or_parentheses(struct node *node);
 bool node_is_value_type(struct node *node);
 
 void make_exp_node(struct node *left_node, struct node *right_node, const char *op);
+void make_exp_parentheses_node(struct node *exp_node);
 void make_bracket_node(struct node *node);
 void make_body_node(struct vector *body_vec, size_t size, bool padded, struct node *largest_var_node);
 void make_struct_node(const char *name, struct node *body_node);
 void make_function_node(struct datatype *ret_type, const char *name, struct vector *arguments, struct node *body_node);
 void make_if_node(struct node *cond_node, struct node *body_node, struct node *next_node);
+void make_else_node(struct node *body_node);
 
 void node_set_vector(struct vector *vec, struct vector *root_vec);
 void node_push(struct node *node);
