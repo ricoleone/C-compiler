@@ -5,6 +5,7 @@ int main(int z, int q, ... )
     if (x>32)
     {
         int y = 20;
+        return;
     }
     else if (2)
     {
@@ -14,4 +15,5 @@ int main(int z, int q, ... )
     {
         int d = 44;
     }
+    return 17;
 }
