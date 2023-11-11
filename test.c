@@ -1,6 +1,11 @@
 int main(int z, int q, ... )
 {
-    int x;
+    int i = 0;
+    for (i = 0; i < 30; i += 1)
+    {
+
+    }
+        int x;
     x = (50 + 20);
     if (x>32)
     {
