@@ -1,9 +1,13 @@
 int main(int z, int q, ... )
 {
     int i = 0;
+    while(false)
+    {
+        int q = i;
+    }
     for (i = 0; i < 30; i += 1)
     {
-
+        int z = 20;
     }
         int x;
     x = (50 + 20);
