@@ -5,4 +5,7 @@ int main(int x)
     {
         int b = 0;
     }while (1);
+    switch (1)
+    {
+    }
 }
