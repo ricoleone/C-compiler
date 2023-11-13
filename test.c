@@ -4,8 +4,10 @@ int main(int x)
     do
     {
         int b = 0;
-    }while (1);
+        continue;
+    } while (1);
     switch (1)
     {
+        break;
     }
 }

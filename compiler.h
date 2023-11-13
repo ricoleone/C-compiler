@@ -536,6 +536,9 @@ struct node *node_from_sym(struct symbol *sym);
 struct node *node_from_symbol(struct compile_process *current_process, const char *name);
 struct node *struct_node_for_name(struct compile_process *current_process, const char *name);
 
+void make_continue_node();
+void make_break_node();
+
 bool node_is_expression_or_parentheses(struct node *node);
 bool node_is_value_type(struct node *node);
 
