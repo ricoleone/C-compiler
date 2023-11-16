@@ -9,4 +9,5 @@ int main(int x)
             i = 2;
             break;
     }
-}
+    i = 50 ? 20 : 10;
+    }
