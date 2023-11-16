@@ -3,14 +3,10 @@ int main(int x)
    
     int i = 0;
     abc:
-    do
+    switch (i)
     {
-        int b = 0;
-        goto abc;
-        continue;
-    } while (1);
-    switch (1)
-    {
-        break;
+        case 1:
+            i = 2;
+            break;
     }
 }
