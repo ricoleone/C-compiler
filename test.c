@@ -11,4 +11,5 @@ int main(int x)
     }
     i = 50 ? 20 : 10;
     int a, b;
-    }
+    int q[] = abc[50];
+}
