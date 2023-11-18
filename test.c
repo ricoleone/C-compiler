@@ -10,4 +10,5 @@ int main(int x)
             break;
     }
     i = 50 ? 20 : 10;
+    int a, b;
     }
