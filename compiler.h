@@ -450,6 +450,12 @@ struct node
         {
             struct node *name;
         } label;
+        
+        struct cast
+        {
+            struct datatype dtype;
+            struct node *operand;
+        } cast;
     };
 
     union
@@ -567,6 +573,7 @@ void make_break_node();
 bool node_is_expression_or_parentheses(struct node *node);
 bool node_is_value_type(struct node *node);
 
+void make_cast_node(struct datatype *dtype, struct node *operand_node);
 void make_exp_node(struct node *left_node, struct node *right_node, const char *op);
 void make_exp_parentheses_node(struct node *exp_node);
 void make_bracket_node(struct node *node);
