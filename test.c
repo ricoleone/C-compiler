@@ -1,10 +1,17 @@
+struct dog;
+struct dog
+{
+    int z;
+};
+
 int main(int x, int y)
 {
    
     int i = 0;
     abc:
-    switch (i)
-    {
+        
+        switch (i)
+        {
         case 1:
             i = 2;
             break;
@@ -14,4 +21,5 @@ int main(int x, int y)
     int q[] = abc[50];
     char c = 'e';
     (int)c;
+    struct dog cat;
     }
