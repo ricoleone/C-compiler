@@ -359,7 +359,7 @@ struct node
              */
             struct node *var;
         } _union;
-        
+
         struct body
         {
             struct vector *statements;
@@ -573,6 +573,10 @@ size_t datatype_size(struct datatype *dtype);
 bool data_type_is_primative(struct datatype *dtype);
 
 bool token_is_operator(struct token *token, const char *val);
+
+bool node_is_expression(struct node *node, const char *op);
+bool is_array_node(struct node *node);
+bool is_node_assignment(struct node *node);
 
 struct node *node_create(struct node *_node);
 
