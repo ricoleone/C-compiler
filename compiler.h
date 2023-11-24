@@ -343,6 +343,23 @@ struct node
             struct node *var;
         } _struct;
 
+        struct _union
+        {
+            const char *name;
+            struct node *body_n;
+
+            /**
+             * struct abc
+             * {
+             *
+             * } var_name;
+             *
+             * NULL if no variable attached to structure.
+             *
+             */
+            struct node *var;
+        } _union;
+        
         struct body
         {
             struct vector *statements;

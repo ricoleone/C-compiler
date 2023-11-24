@@ -1,8 +1,7 @@
-struct dog;
-struct dog
+union abc
 {
     int z;
-};
+} kk;
 
 int main(int x, int y)
 {
@@ -21,5 +20,4 @@ int main(int x, int y)
     int q[] = abc[50];
     char c = 'e';
     (int)c;
-    struct dog cat;
-    }
+       }

@@ -32,10 +32,13 @@ struct node *variable_struct_or_union_body_node(struct node *node)
     {
         return node->var.type.struct_node->_struct.body_n;
     }
-#warning "Unions not implemented yet"
-    printf("UNION NODES NOT YET CREATED\n");
-    exit(1);
+    if (node->var.type.type == DATA_TYPE_UNION)
+    {
+        return node->var.type.union_node->_union.body_n;
+    }
+    return NULL;
 }
+
 
 int padding(int val, int to)
 {
