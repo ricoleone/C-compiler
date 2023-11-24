@@ -288,3 +288,26 @@ bool node_is_value_type(struct node *node)
 {
     return node_is_expression_or_parentheses(node) || node->type == NODE_IDENTIFIER || node->type == NODE_NUMBER || node->type == NODE_UNARY || node->type == NODE_TENARY || node->type == NODE_STRING;
 }
+
+
+bool node_is_expression(struct node *node, const char *op)
+{
+    return node->type == NODE_EXPRESSION && S_EQ(node->exp.op, op);
+}
+
+bool is_array_node(struct node *node)
+{
+    return node_is_expression(node, "[]");
+}
+
+bool is_node_assignment(struct node *node)
+{
+    if (node->type != NODE_EXPRESSION)
+        return false;
+
+    return S_EQ(node->exp.op, "=") ||
+           S_EQ(node->exp.op, "+=") ||
+           S_EQ(node->exp.op, "-=") ||
+           S_EQ(node->exp.op, "/=") ||
+           S_EQ(node->exp.op, "*=");
+}
